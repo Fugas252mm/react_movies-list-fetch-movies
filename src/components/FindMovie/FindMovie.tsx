@@ -7,9 +7,10 @@ import { MovieCard } from '../MovieCard';
 
 type Props = {
   onAddMovie: (movie: Movie) => void;
+  movies: Movie[];
 };
 
-export const FindMovie: React.FC<Props> = ({ onAddMovie }) => {
+export const FindMovie: React.FC<Props> = ({ onAddMovie, movies }) => {
   const [searchTitle, setSearchTitle] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -34,13 +35,22 @@ export const FindMovie: React.FC<Props> = ({ onAddMovie }) => {
   }
 
   const handleAddMovie = () => {
-    if (foundMovie) {
-      onAddMovie(foundMovie);
-      // Очистити форму
-      setSearchTitle('');
-      setFoundMovie(null);
-      setError('');
+    if (!foundMovie) {
+      return;
     }
+
+    const isDuplicate = movies.some(
+      movie => movie.imdbId === foundMovie.imdbId,
+    );
+
+    if (!isDuplicate) {
+      onAddMovie(foundMovie); // Додати тільки якщо не дублікат
+    }
+
+    // Завжди очистити форму (і для дублікатів теж)
+    setSearchTitle('');
+    setFoundMovie(null);
+    setError('');
   };
 
   const handleSearch = async (e: React.FormEvent) => {
